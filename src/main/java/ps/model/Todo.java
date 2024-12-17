@@ -8,6 +8,9 @@ public class Todo {
     private Date deadline;
     private boolean isCompleted;
 
+    public Todo(){
+    }
+
     public Todo(int id, String title, Date Deadline, boolean isCompleted){
         this.id = id;
         this.title = title;

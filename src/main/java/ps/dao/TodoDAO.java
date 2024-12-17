@@ -24,9 +24,9 @@ public class TodoDAO {
                 int id = resultSet.getInt("idtodos");
                 String title = resultSet.getString("title");
                 java.sql.Date deadline = resultSet.getDate("deadline");
-                boolean completed = resultSet.getBoolean("completed");
+                boolean iscompleted = resultSet.getBoolean("iscompleted");
 
-                todos.add(new Todo(id, title, deadline, completed));
+                todos.add(new Todo(id, title, deadline, iscompleted));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -60,36 +60,41 @@ public class TodoDAO {
     }
 
 
-    public void addTodo(String title, Date deadline) throws SQLException{
-        String query = "INSERT INTO todos (title, deadline, iscomplete) VALUES (?,?,false)";
-
+    public void addTodo(Todo todo) throws SQLException {
+        String query = "INSERT INTO todos (title, deadline, iscompleted) VALUES (?, ?, false)";
         try (Connection connection = Database.getConnection();
-        PreparedStatement statement = connection.prepareStatement(query)){
-            statement.setString(1, title);
-            statement.setDate(2, new java.sql.Date(deadline.getTime()));
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, todo.getTitle());
+            statement.setDate(2, new java.sql.Date(todo.getDeadline().getTime()));
             statement.executeUpdate();
         }
     }
 
-    public void updateTodo(int id, String title, Date deadline, boolean isCompleted) throws SQLException{
+    public boolean updateTodo(Todo todo) throws SQLException {
         String query = "UPDATE todos SET title = ?, deadline = ?, iscompleted = ? WHERE idtodos = ?";
         try (Connection connection = Database.getConnection();
-        PreparedStatement statement = connection.prepareStatement(query)){
-            statement.setString(1, title);
-            statement.setDate(2, new java.sql.Date(deadline.getTime()));
-            statement.setBoolean(3, isCompleted);
-            statement.setInt(4, id);
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, todo.getTitle());
+            statement.setDate(2, new java.sql.Date(todo.getDeadline().getTime()));
+            statement.setBoolean(3, todo.isCompleted());
+            statement.setInt(4, todo.getId());
             statement.executeUpdate();
+
+            int rowsAffected = statement.executeUpdate();
+            return rowsAffected > 0;
         }
     }
 
-    public void deleteTodo(int id) throws SQLException{
+    public boolean deleteTodoById(int id) throws SQLException{
         String query = "DELETE FROM todos WHERE idtodos = ?";
 
         try (Connection connection = Database.getConnection();
         PreparedStatement statement = connection.prepareStatement(query)){
             statement.setInt(1, id);
             statement.executeUpdate();
+
+            int rowsAffected = statement.executeUpdate();
+            return rowsAffected > 0;
         }
     }
 }
