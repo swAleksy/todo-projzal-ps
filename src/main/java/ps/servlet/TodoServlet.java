@@ -16,7 +16,7 @@ import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.List;
 
-@WebServlet("/api/todos")
+@WebServlet("/api/todos/*")
 public class TodoServlet extends HttpServlet {
     private final TodoDAO todoDAO = new TodoDAO();
 
@@ -99,32 +99,38 @@ public class TodoServlet extends HttpServlet {
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
 
         try {
-            String idParam = req.getParameter("id");
-            if (idParam == null || idParam.isEmpty()) {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST); // 400
-                resp.getWriter().println("{\"error\": \"Missing 'id' parameter\"}");
+            String pathInfo = req.getPathInfo(); // Pobiera np. "/5"
+            if (pathInfo == null || pathInfo.equals("/")) {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                resp.getWriter().println("{\"error\": \"Missing ID in path\"}");
                 return;
             }
 
-            int id = Integer.parseInt(idParam);
+            int id = Integer.parseInt(pathInfo.substring(1)); // Usuwa "/"
+
             boolean isDeleted = todoDAO.deleteTodoById(id);
 
             if (isDeleted) {
-                resp.setStatus(HttpServletResponse.SC_OK); // 200
+                resp.setStatus(HttpServletResponse.SC_OK);
                 resp.getWriter().println("{\"message\": \"Todo deleted successfully\"}");
             } else {
-                resp.setStatus(HttpServletResponse.SC_NOT_FOUND); // 404
+                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 resp.getWriter().println("{\"error\": \"Todo not found\"}");
             }
-        } catch (NumberFormatException | SQLException e) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST); // 400
-            resp.getWriter().println("{\"error\": \"Invalid 'id' parameter\"}");
+        } catch (NumberFormatException e) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().println("{\"error\": \"Invalid ID format\"}");
+        } catch (SQLException e) {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR); // 500
+            resp.getWriter().println("{\"error\": \"Database error: " + e.getMessage() + "\"}");
         }
     }
+
 
     private Todo parseJsonToTodo(String json) throws ParseException {
         String[] fields = json.replace("{", "").replace("}", "").split(",");

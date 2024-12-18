@@ -91,7 +91,6 @@ public class TodoDAO {
         try (Connection connection = Database.getConnection();
         PreparedStatement statement = connection.prepareStatement(query)){
             statement.setInt(1, id);
-            statement.executeUpdate();
 
             int rowsAffected = statement.executeUpdate();
             return rowsAffected > 0;
