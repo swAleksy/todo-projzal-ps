@@ -73,10 +73,50 @@ public class TodoServlet extends HttpServlet {
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
+        req.setCharacterEncoding("UTF-8");
 
         try {
+            String pathInfo = req.getPathInfo();
+            if (pathInfo == null || pathInfo.equals("/")) {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                resp.getWriter().println("{\"error\": \"Missing ID in path\"}");
+                return;
+            }
+
+            int id;
+            try {
+                id = Integer.parseInt(pathInfo.substring(1));
+            } catch (NumberFormatException e) {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                resp.getWriter().println("{\"error\": \"Invalid ID format\"}");
+                return;
+            }
+
+            Todo existingTodo = todoDAO.getTodoById(id);
+            if (existingTodo == null) {
+                resp.setStatus(HttpServletResponse.SC_NOT_FOUND); // 404
+                resp.getWriter().println("{\"error\": \"Todo not found\"}");
+                return;
+            }
+
             String body = req.getReader().lines().reduce("", (acc, line) -> acc + line);
+            System.out.println(body);
+            if (body.isEmpty()) {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                resp.getWriter().println("{\"error\": \"Empty body\"}");
+                return;
+            }
+
             Todo updatedTodo = parseJsonToTodo(body);
+            updatedTodo.setId(id);
+
+            if (updatedTodo.getTitle() == null || updatedTodo.getTitle().isEmpty()) {
+                updatedTodo.setTitle(existingTodo.getTitle());
+            }
+            if (updatedTodo.getDeadline() == null) {
+                updatedTodo.setDeadline(existingTodo.getDeadline());
+            }
+            updatedTodo.setCompleted(updatedTodo.isCompleted()); // Assume this is explicitly set in the body
 
             boolean isUpdated = todoDAO.updateTodo(updatedTodo);
 
@@ -87,15 +127,17 @@ public class TodoServlet extends HttpServlet {
                 resp.setStatus(HttpServletResponse.SC_NOT_FOUND); // 404
                 resp.getWriter().println("{\"error\": \"Todo not found\"}");
             }
-
         } catch (ParseException e) {
+            e.printStackTrace(); // Logowanie błędu
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST); // 400
             resp.getWriter().println("{\"error\": \"Invalid date format. Expected yyyy-MM-dd.\"}");
         } catch (SQLException e) {
+            e.printStackTrace(); // Logowanie błędu
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR); // 500
-            resp.getWriter().println("{\"error\": \"An error occurred while updating the todo.\"}");
+            resp.getWriter().println("{\"error\": \"Database error while updating the todo.\"}");
         }
     }
+
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

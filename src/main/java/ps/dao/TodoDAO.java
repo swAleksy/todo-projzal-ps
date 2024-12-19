@@ -48,7 +48,7 @@ public class TodoDAO {
                     int id = resultSet.getInt("idtodos");
                     String title = resultSet.getString("title");
                     java.sql.Date deadline = resultSet.getDate("deadline");
-                    boolean completed = resultSet.getBoolean("completed");
+                    boolean completed = resultSet.getBoolean("iscompleted");
 
                     todo = new Todo(id, title, deadline, completed); // Create the Todo object
                 }

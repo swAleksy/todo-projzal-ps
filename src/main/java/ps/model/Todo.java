@@ -11,10 +11,10 @@ public class Todo {
     public Todo(){
     }
 
-    public Todo(int id, String title, Date Deadline, boolean isCompleted){
+    public Todo(int id, String title, Date deadline, boolean isCompleted){
         this.id = id;
         this.title = title;
-        this.deadline = Deadline;
+        this.deadline = deadline;
         this.isCompleted = isCompleted;
     }
 
@@ -38,8 +38,8 @@ public class Todo {
         return deadline;
     }
 
-    public void setDeadline(Date Deadline) {
-        this.deadline = Deadline;
+    public void setDeadline(Date deadline) {
+        this.deadline = deadline;
     }
 
     public boolean isCompleted() {
@@ -47,7 +47,13 @@ public class Todo {
     }
 
     public void setCompleted(boolean completed) {
-        isCompleted = completed;
+        this.isCompleted = completed;
     }
 
+    public void printData(){
+        System.out.println(id);
+        System.out.println(title);
+        System.out.println(deadline);
+        System.out.println(isCompleted);
+    }
 }
