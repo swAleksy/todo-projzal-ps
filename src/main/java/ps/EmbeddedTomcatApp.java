@@ -3,7 +3,6 @@ package ps;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.io.FileUtils;
-import ps.servlet.TodoServlet;
 
 import java.io.File;
 

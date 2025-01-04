@@ -1,5 +1,11 @@
 const API_URL = "http://localhost:8081/api/todos";
 
+document.addEventListener("DOMContentLoaded", () => {
+    const deadlineInput = document.getElementById("deadline");
+    const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
+    deadlineInput.setAttribute("min", today); // Set the min attribute to today's date
+});
+
 async function fetchTasks() {
     const response = await fetch(API_URL);
     const tasks = await response.json();

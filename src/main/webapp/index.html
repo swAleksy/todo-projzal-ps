@@ -14,8 +14,10 @@
     <input type="text" id="title" name="title" required>
     <br><br>
     <label for="deadline">Deadline:</label>
-    <input type="date" id="deadline" name="deadline" required>
+    <input type="date" id="deadline" name="deadline" required max="2099-12-31" min="">
     <br><br>
+    <span id="error-message" style="color: red; display: none;"></span>
+    <br>
     <button type="submit">Add Task</button>
 </form>
 
@@ -25,4 +27,3 @@
 <script src="app.js"></script>
 </body>
 </html>
-

@@ -74,16 +74,29 @@ public class TodoDAO {
         String query = "UPDATE todos SET title = ?, deadline = ?, iscompleted = ? WHERE idtodos = ?";
         try (Connection connection = Database.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
+
             statement.setString(1, todo.getTitle());
             statement.setDate(2, new java.sql.Date(todo.getDeadline().getTime()));
             statement.setBoolean(3, todo.isCompleted());
             statement.setInt(4, todo.getId());
-            statement.executeUpdate();
-
+            System.out.println("Executing SQL: " + statement);
             int rowsAffected = statement.executeUpdate();
             return rowsAffected > 0;
         }
     }
+//
+//    public boolean switchTodoCompletion(Todo todo) throws SQLException {
+//        String query = "UPDATE todos SET iscompleted = ? WHERE idtodos = ?";
+//        try (Connection connection = Database.getConnection();
+//             PreparedStatement statement = connection.prepareStatement(query)) {
+//
+//            statement.setBoolean(1, !todo.isCompleted());
+//            statement.setInt(2, todo.getId());
+//            System.out.println(" switchTodoCompletion Executing SQL: " + statement);
+//            int rowsAffected = statement.executeUpdate();
+//            return rowsAffected > 0;
+//        }
+//    }
 
     public boolean deleteTodoById(int id) throws SQLException{
         String query = "DELETE FROM todos WHERE idtodos = ?";

@@ -1,11 +1,21 @@
 package ps.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Date;
 
 public class Todo {
     private int id;
+
+    @JsonProperty("title")
     private String title;
+
+    @JsonProperty("deadline")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date deadline;
+
+    @JsonProperty("isCompleted")
     private boolean isCompleted;
 
     public Todo(){
@@ -46,14 +56,14 @@ public class Todo {
         return isCompleted;
     }
 
-    public void setCompleted(boolean completed) {
-        this.isCompleted = completed;
+    public void setCompleted(boolean isCompleted) {
+        this.isCompleted = isCompleted;
     }
 
     public void printData(){
-        System.out.println(id);
-        System.out.println(title);
-        System.out.println(deadline);
-        System.out.println(isCompleted);
+        System.out.println("Id: " + id);
+        System.out.println("title: " + title);
+        System.out.println("deadline: " + deadline);
+        System.out.println("completed: " + isCompleted);
     }
 }
