@@ -1,4 +1,5 @@
 const API_URL = "http://localhost:8081/api/todos";
+const API_KEY = "test12345";
 
 document.addEventListener("DOMContentLoaded", () => {
     const deadlineInput = document.getElementById("deadline");
@@ -7,7 +8,11 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function fetchTasks() {
-    const response = await fetch(API_URL);
+    const response = await fetch(API_URL, {
+        headers: {
+            "Authorization": API_KEY,
+        },
+    });
     const tasks = await response.json();
 
     const taskList = document.getElementById("task-list");
@@ -37,6 +42,7 @@ async function addTask(event) {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
+            "Authorization": API_KEY,
         },
         body: JSON.stringify({
             title: title,
@@ -57,6 +63,9 @@ async function deleteTask(id) {
     console.log(API_URL);
     const response = await fetch(`${API_URL}/${id}`, {
         method: "DELETE",
+        headers:{
+            "Authorization": API_KEY,
+        },
     });
 
     if (response.ok) {
@@ -72,6 +81,7 @@ async function markAsCompleted(id) {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",
+            "Authorization": API_KEY,
         },
         body: JSON.stringify({
             isCompleted: true,

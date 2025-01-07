@@ -1,0 +1,147 @@
+openapi: 3.0.0
+info:
+  title: Todo API
+  description: API for managing a Todo list with authentication via API key.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8081
+    description: Local development server
+paths:
+  /api/todos:
+    get:
+      summary: Get all todos
+      description: Fetches a list of all todos.
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: API key for authentication
+      responses:
+        200:
+          description: A list of todos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Todo'
+        401:
+          description: Unauthorized
+    post:
+      summary: Create a new todo
+      description: Creates a new todo item.
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: API key for authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TodoInput'
+      responses:
+        201:
+          description: Todo created successfully
+        400:
+          description: Invalid input
+        401:
+          description: Unauthorized
+  /api/todos/{id}:
+    put:
+      summary: Update a todo
+      description: Updates a specific todo (e.g., marking it as completed).
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: API key for authentication
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: The ID of the todo to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TodoUpdate'
+      responses:
+        200:
+          description: Todo updated successfully
+        404:
+          description: Todo not found
+        401:
+          description: Unauthorized
+    delete:
+      summary: Delete a todo
+      description: Deletes a specific todo.
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: API key for authentication
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: The ID of the todo to delete
+      responses:
+        200:
+          description: Todo deleted successfully
+        404:
+          description: Todo not found
+        401:
+          description: Unauthorized
+components:
+  schemas:
+    Todo:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Finish project"
+        deadline:
+          type: string
+          format: date
+          example: "2025-01-15"
+        isCompleted:
+          type: boolean
+          example: false
+    TodoInput:
+      type: object
+      required:
+        - title
+        - deadline
+      properties:
+        title:
+          type: string
+          example: "Finish project"
+        deadline:
+          type: string
+          format: date
+          example: "2025-01-15"
+        isCompleted:
+          type: boolean
+          example: false
+    TodoUpdate:
+      type: object
+      properties:
+        isCompleted:
+          type: boolean
+          example: true

@@ -19,15 +19,23 @@ public class TodoServlet extends HttpServlet {
     private final TodoDAO todoDAO = new TodoDAO();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    private static final String API_KEY = "test12345";
+
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        if (!isAutorized(req)) {
+            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            resp.getWriter().write("{\"error\": \"Unauthorized\"}");
+            return;
+        }
+
         try {
             Todo newTodo = objectMapper.readValue(req.getReader(), Todo.class);
             if (newTodo.getDeadline() == null || newTodo.getTitle() == null) {
                 writeJsonResponse(resp, HttpServletResponse.SC_BAD_REQUEST, "{\"error\": \"Missing title or deadline\"}");
                 return;
             }
-            newTodo.setCompleted(false); // Default state for new Todos
+            newTodo.setCompleted(false);
             todoDAO.addTodo(newTodo);
             writeJsonResponse(resp, HttpServletResponse.SC_CREATED, "{\"message\": \"Todo created successfully\"}");
         } catch (Exception e) {
@@ -37,7 +45,13 @@ public class TodoServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        if (!isAutorized(req)) {
+            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            resp.getWriter().write("{\"error\": \"Unauthorized\"}");
+            return;
+        }
+
         try {
             List<Todo> todos = todoDAO.getAllTodos();
             String json = objectMapper.writeValueAsString(todos);
@@ -49,7 +63,13 @@ public class TodoServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        if (!isAutorized(req)) {
+            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            resp.getWriter().write("{\"error\": \"Unauthorized\"}");
+            return;
+        }
+
         try {
             String pathInfo = req.getPathInfo();
             if (pathInfo == null || pathInfo.equals("/")) {
@@ -66,7 +86,7 @@ public class TodoServlet extends HttpServlet {
 
             Todo updatedTodo = objectMapper.readValue(req.getReader(), Todo.class);
 //            updatedTodo.printData();
-            updatedTodo.setId(id); // Ensure ID consistency
+            updatedTodo.setId(id); // id musi sie zgadzac
             if (updatedTodo.getTitle() == null || updatedTodo.getTitle().isEmpty()) {
                 updatedTodo.setTitle(existingTodo.getTitle());
             }
@@ -91,7 +111,13 @@ public class TodoServlet extends HttpServlet {
     }
 
     @Override
-    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        if (!isAutorized(req)) {
+            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            resp.getWriter().write("{\"error\": \"Unauthorized\"}");
+            return;
+        }
+
         try {
             String pathInfo = req.getPathInfo();
             if (pathInfo == null || pathInfo.equals("/")) {
@@ -120,5 +146,10 @@ public class TodoServlet extends HttpServlet {
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
         resp.getWriter().write(message);
+    }
+
+    private boolean isAutorized(HttpServletRequest req){
+        String apiKey = req.getHeader("Authorization");
+        return apiKey.equals(API_KEY);
     }
 }
